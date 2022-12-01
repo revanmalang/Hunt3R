@@ -1,0 +1,173 @@
+<nb-layout>
+
+  <nb-layout-header>
+    <nb-sidebar-toggle style="width:100vw"></nb-sidebar-toggle>
+  </nb-layout-header>
+
+  <nb-sidebar left tag="left" state="expanded" responsive>
+    <nb-menu-services></nb-menu-services>
+  </nb-sidebar>
+
+
+
+
+
+  <nb-layout-column>
+    <nb-card [nbSpinner]="loadingSubomain" nbSpinnerStatus="primary">
+        <nb-card-body class="example-items-col">
+          <h2><nb-icon icon="arrow-back-outline" (click)="back()" class="backIcon"></nb-icon>Subdomain list</h2>
+          <br>
+          <nb-card >
+            <nb-card-body>
+              <div class="row">
+                <h6>Filter options</h6>
+                  <div class="form-group col">
+                    <label for="inputEmail1" class="label col-sm-6 col-form-label">Technologie used</label>
+                    <div class="col-sm-9">
+                      <input class="col" nbInput type="text" #technologieSearch>
+                    </div>
+                  </div>
+                  <div class="form-group col">
+                    <label for="inputEmail1" class="label col-sm-6 col-form-label">Subdomain</label>
+                    <div class="col-sm-9">
+                      <input class="col" nbInput type="text" #subdomainSearch > 
+                    </div>
+                  </div>
+                  <div class="form-group col">
+                    <label for="inputEmail1" class="label col-sm-6 col-form-label">Status code</label>
+                    <div class="col-sm-9">
+                      <input class="col" nbInput type="text" #statusCodeSearch>
+                    </div>
+                  </div>
+                </div>
+                <div class="searchButton">
+                  <button type="button"  nbButton status="success" (click)="searchSubomainInit(technologieSearch.value,subdomainSearch.value,statusCodeSearch.value)"><nb-icon icon="search-outline" ></nb-icon></button>
+                </div>
+            </nb-card-body>
+          </nb-card>
+          <div class="col-md-4 offset-md-8">
+            <nb-select placeholder="Select limit" [(selected)]="this.limit" (selectedChange)="changeLimit($event)">
+              <nb-option value="10">10</nb-option>
+              <nb-option value="50">50</nb-option>
+              <nb-option value="100">100</nb-option>
+              <nb-option value="-1">All</nb-option>
+            </nb-select>
+            <button [disabled]="page==1" (click)="goToPage(page-1)" nbButton ghost status="basic">
+              <nb-icon icon="arrow-left-outline"></nb-icon>
+            </button>
+            <nb-select placeholder="Select page" (selectedChange)="goToPage($event)">
+              <nb-option *ngFor="let item of [].constructor(total_pages); let i = index" value="{{i+1}}">{{i+1}}</nb-option>
+            </nb-select>
+            <button [disabled]="page==total_pages" nbButton ghost status="basic" (click)="goToPage(page+1)">
+              <nb-icon icon="arrow-right-outline"></nb-icon>
+            </button>
+          </div>       
+          <table class="subdomainTable">
+            <tr>
+              <!--<th>ID</th>-->
+              <th>URL</th>
+              <th>IP</th>
+              <th>Ports</th>
+              <th>Status code</th>
+              <th>Content length</th>
+              <th>Technologies</th>
+              <th>Screenshot</th>
+  
+              
+            </tr>
+            <tr *ngFor="let item of this.subdomainsList">
+            <!--  <td>{{ item.id }}</td>-->
+              <td>
+                <a href="{{ item.url }}" rel="noreferrer" target="_blank">{{ item.url }}</a>
+                <br *ngIf="item.infos.title">
+                <div class="badgeSubDiv">
+                  <nb-badge *ngIf="item.infos.title" class="badgeSub breakSentance" text="Title: {{item.infos.title}}" status="info" ></nb-badge>
+                </div>
+                
+
+                <br *ngIf="item.infos.location">
+                <div class="badgeSubDiv">
+                  <nb-badge *ngIf="item.infos.location" class="badgeSub breakSentance" text="Redirect to: {{item.infos.location}}" status="warning" >      </nb-badge>
+
+                </div>
+                <br>
+                <button nbButton outline status="info" size="tiny" (click)="goToUrls(item.id)">View urls</button>
+          
+              </td>
+              <td>{{ item.infos.ip }}
+                <br *ngIf="item.infos.cname">
+                <div *ngIf="item.infos.cname" class="p5">
+                  <div class="col-md-12 badgeSubDiv">
+                    <nb-badge *ngIf="item.infos.cname" class="badgeSub" text="CNAME: {{item.infos.cname}}" status="warning" ></nb-badge>
+                  </div>
+                </div>
+                <br *ngIf="item.infos.cdn">
+                <div *ngIf="item.infos.cdn" class="p5">
+                  <div class="badgeSubDiv">
+                    <nb-badge *ngIf="item.infos.cdn" class="badgeSub" text="CDN: {{item.infos.cdn}}" status="basic" ></nb-badge>
+                  </div>
+
+                 
+                  </div>
+                </td>
+              <td ><div class="badgeSubDivPort"><nb-badge  *ngFor="let port of item.infos.ports"  class="badgeSubPort" text="{{port}}" status="primary" ></nb-badge></div></td>
+              <td><div class="badgeSubDiv"> <nb-badge class="badgeSub" text="{{ item.infos.status_code }}" status="{{ item.infos.status_code> 399 ? 'danger' : item.infos.status_code> 299 ? 'warning' : 'success' }}" ></nb-badge></div></td>
+              <td>{{ item.infos.content_length }}</td>
+              <td  ><div class="badgeSubDiv" *ngFor="let techno of item.infos.technologies">
+                <div class="badge">
+                  <div class="ImageTech">
+                    <span>
+                      <img src="/assets/icons/{{getImgTech(techno.name)}}" >
+                    </span>
+                  </div>
+                  <div class="name">
+                    <span>
+                      {{techno.name}}
+                    </span>
+                  </div>
+                    <div *ngIf="techno.version" class="version">
+                    <span>
+                      {{techno.version}}
+                    </span>
+                  </div>
+                </div>
+                </div><!--<div class="badgeSubTechno" ><div class="imgtech"><img src="/assets/icons/{{getImgTech(techno)}}"></div><div class="textTechno">{{techno}}</div></div></div>-->
+              </td>
+              <td><img (click)="screenModal(apiUrl+'/screenshots/'+item.id)" class="screenpreview" id='screen{{item.id}}' appLazyLoad [src]="item.id.toString()" loading="lazy"></td>
+            </tr>
+          </table>
+          <div class="pagination col-md-1 offset-md-11">
+            <button [disabled]="page==1" (click)="goToPage(page-1)" nbButton ghost status="basic">
+              <nb-icon icon="arrow-left-outline"></nb-icon>
+            </button>
+            <button [disabled]="page==total_pages" nbButton ghost status="basic" (click)="goToPage(page+1)">
+              <nb-icon icon="arrow-right-outline"></nb-icon>
+            </button>
+        </div>
+        <br>
+        <div class="page">
+          page {{page}} of {{total_pages}} pages
+        </div>
+
+      </nb-card-body>
+
+
+    </nb-card>
+    <ng-template #dialogScreen let-data let-ref="dialogScreen"  >
+      <nb-card >
+        <nb-card-header class="close">      
+          <button class="close" aria-label="Close" (click)="closeModal()">
+            <nb-icon icon="close"></nb-icon>
+          </button>
+        </nb-card-header>
+        <nb-card-body>
+          <img id="modalImgSRC" [src]="data | useHttpImgSrc:'/assets/img/loading.gif':'/assets/img/not-found.png'" loading="lazy" >    
+        </nb-card-body>
+      </nb-card>
+    </ng-template>
+
+  </nb-layout-column>
+
+
+
+</nb-layout>

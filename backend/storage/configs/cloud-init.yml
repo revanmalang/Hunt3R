@@ -1,0 +1,59 @@
+#cloud-config
+
+package_update: false
+package_upgrade: false
+
+packages:
+  - unzip
+  - ruby
+  - ruby-dev
+  - make
+  - gcc
+  - whois
+
+runcmd:
+  # Allow root connection on AWS
+  - sed -i 's/.*ssh-rsa/ssh-rsa/' /root/.ssh/authorized_keys
+  # Amass
+  - wget https://github.com/OWASP/Amass/releases/download/v3.19.3/amass_linux_amd64.zip
+  - unzip amass_linux_amd64.zip
+  - mv amass_linux_amd64/amass /usr/local/bin/
+  - rm -r amass_linux_amd64 amass_linux_amd64.zip
+  # AssetFinder
+  - wget https://github.com/tomnomnom/assetfinder/releases/download/v0.1.1/assetfinder-linux-amd64-0.1.1.tgz
+  - tar -zxvf assetfinder-linux-amd64-0.1.1.tgz
+  - mv assetfinder /usr/local/bin/
+  - rm -r assetfinder-linux-amd64-0.1.1.tgz
+  # Findomain
+  - wget https://github.com/Findomain/Findomain/releases/download/8.2.0/findomain-linux.zip
+  - unzip findomain-linux.zip && rm findomain-linux.zip
+  - mv findomain /usr/local/bin/findomain
+  - chmod +x /usr/local/bin/findomain
+  # Nuclei
+  - wget https://github.com/projectdiscovery/nuclei/releases/download/v2.7.6/nuclei_2.7.6_linux_amd64.zip
+  - unzip nuclei_2.7.6_linux_amd64.zip
+  - mv nuclei /usr/local/bin
+  - rm nuclei_2.7.6_linux_amd64.zip
+  # Subfinder
+  - wget https://github.com/projectdiscovery/subfinder/releases/download/v2.5.3/subfinder_2.5.3_linux_amd64.zip
+  - unzip subfinder_2.5.3_linux_amd64.zip
+  - mv subfinder /usr/local/bin
+  - rm subfinder_2.5.3_linux_amd64.zip
+  # GAU
+  - wget https://github.com/lc/gau/releases/download/v2.1.2/gau_2.1.2_linux_amd64.tar.gz
+  - tar -xzvf gau_2.1.2_linux_amd64.tar.gz
+  - mv gau /usr/local/bin/
+  - rm LICENSE README.md gau_2.1.2_linux_amd64.tar.gz
+  # WappaGo
+  - wget https://github.com/EasyRecon/wappaGo/releases/download/release-0.0.8/wappaGo_linux_x64
+  - mv wappaGo_linux_x64 /usr/local/bin/wappago
+  - chmod +x /usr/local/bin/wappago
+  - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  - apt install ./google-chrome-stable_current_amd64.deb -y
+  - rm google-chrome-stable_current_amd64.deb
+  # Typhoeus
+  - gem install typhoeus
+  # PublicSuffix
+  - gem install public_suffix
+
+final_message: "The system is finally up, after $UPTIME seconds"
